@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
-class RefreshSwipeList extends StatefuWidget {
+class RefreshSwipeList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: Text('hello')
+      appBar: AppBar(
+        title: Text('RefreshSwipeList'),
+      ),
+      body: ListHome()
     );
   }
 }
@@ -16,5 +18,94 @@ class ListHome extends StatefulWidget {
 }
 
 class ListHomeState extends State<ListHome> {
+  List<String> fruits;
 
+  @override
+  void initState() {
+    super.initState();
+    fruits = List();
+    addFruits();
+  }
+
+  addFruits() {
+    fruits.add('apple');
+    fruits.add('orange');
+    fruits.add('banana');
+    fruits.add('melon');
+    fruits.add('strawberry');
+  }
+
+  removeFruits(index) {
+    setState(() {
+      fruits.removeAt(index);
+    });
+  }
+
+  undoDelete(index, fruit) {
+    setState(() {
+      fruits.insert(index, fruit);
+    });
+  }
+
+  showSnackBar(context, fruit, index) {
+    Scaffold.of(context).showSnackBar(SnackBar(
+      content: Text('$fruit delete'),
+      action: SnackBarAction(
+        label: 'UNDO',
+        onPressed: () {
+          undoDelete(index, fruit);
+        },
+      ),
+    ));
+  }
+
+  Widget itemBg() {
+    return Container(
+      alignment: Alignment.centerRight,
+      padding: EdgeInsets.only(right: 20.0),
+      color: Colors.red,
+      child: const Icon(
+        Icons.delete,
+        color: Colors.white,
+      )
+    );
+  }
+  
+  Widget list() {
+    return ListView.builder(
+      padding: EdgeInsets.all(20.0),
+      itemCount: fruits.length,
+      itemBuilder: (BuildContext context, int index) {
+        return row(context, index);
+      },
+    );
+  }
+
+  Widget row(context, index) {
+    debugPrint('index: $index');
+    return Dismissible(
+      key: Key(fruits[index]),
+      onDismissed: (direction) {
+        debugPrint('fruits: is $index');
+        var fruit = fruits[index];
+        showSnackBar(context, fruit, index);
+        removeFruits(index);
+      },
+      background: itemBg(),
+      child: Card(
+        child: ListTile(
+          title: Text(fruits[index])
+        )
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        child: list(),
+      ),
+    );
+  }
 }
