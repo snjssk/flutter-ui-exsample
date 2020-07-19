@@ -18,12 +18,16 @@ class ListHome extends StatefulWidget {
 }
 
 class ListHomeState extends State<ListHome> {
+  // インスタンス変数
   List<String> fruits;
+  GlobalKey<RefreshIndicatorState> refreshKey;
 
+  // 初期化
   @override
   void initState() {
     super.initState();
     fruits = List();
+    refreshKey = GlobalKey<RefreshIndicatorState>();
     addFruits();
   }
 
@@ -45,6 +49,11 @@ class ListHomeState extends State<ListHome> {
     setState(() {
       fruits.insert(index, fruit);
     });
+  }
+
+  Future<Null> refreshList() async{
+    await Future.delayed(Duration(seconds: 1));
+    return null;
   }
 
   showSnackBar(context, fruit, index) {
@@ -103,7 +112,11 @@ class ListHomeState extends State<ListHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: RefreshIndicator(
+        key: refreshKey,
+        onRefresh: () async{
+          await refreshList();
+        },
         child: list(),
       ),
     );
